@@ -625,7 +625,7 @@
           <br>R<sub>i</sub> = √((D⁺ᵢ − min D⁺)² + (D⁻ᵢ − max D⁻)²)</p>
           <div class="table-scroll">${matrixHtml("Alternatif",
             alternatives.map((_a, i) => [result.distancePlus[i], result.distanceMinus[i], result.riValues[i], result.ranks[i]]),
-            alternativeIds, ["D+", "D-", "Ri", "Rank"], 6
+            alternativeIds, ["D+", "D-", "Ri", "Rank"], 0
           )}</div>
         </div>
       </div>

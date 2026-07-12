@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SPK DIA — Sistem Pendukung Keputusan</title>
+<meta name="description" content="Sistem Pendukung Keputusan menggunakan metode DIA (Distance to Ideal Alternative) dengan perhitungan real-time.">
+
+<!-- Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+
+<!-- Styles -->
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- Print Header -->
+<div class="print-header" id="printHeader">
+  <div class="print-header-title">SPK DIA — Sistem Pendukung Keputusan</div>
+  <div class="print-header-subtitle">Metode Distance to Ideal Alternative</div>
+  <div class="print-header-team">
+    Kelompok 4 — Muhamad Sauzan Rizki Asakir (2113231076) &amp; Muhamad Gilang Rizqy Suryana (2113231092)
+  </div>
+</div>
+
+<!-- Sidebar -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-brand">
+    <span class="brand-icon material-icons-round">analytics</span>
+    <div>
+      <div class="brand-title">SPK DIA</div>
+      <div class="brand-sub">Distance to Ideal Alternative</div>
+    </div>
+  </div>
+
+  <nav class="sidebar-nav" id="sidebarNav">
+    <a href="#" class="nav-item active" data-page="dashboard">
+      <span class="material-icons-round">dashboard</span> Dashboard
+    </a>
+    <a href="#" class="nav-item" data-page="kriteria">
+      <span class="material-icons-round">tune</span> Data Kriteria
+    </a>
+    <a href="#" class="nav-item" data-page="alternatif">
+      <span class="material-icons-round">group</span> Data Alternatif
+    </a>
+    <a href="#" class="nav-item" data-page="penilaian">
+      <span class="material-icons-round">edit_note</span> Penilaian
+    </a>
+    <a href="#" class="nav-item" data-page="perhitungan">
+      <span class="material-icons-round">calculate</span> Perhitungan DIA
+    </a>
+    <a href="#" class="nav-item" data-page="ranking">
+      <span class="material-icons-round">emoji_events</span> Hasil Ranking
+    </a>
+    <a href="latihan_dia.xlsx" download="latihan_dia.xlsx" class="nav-item">
+      <span class="material-icons-round">download</span> Unduh Excel Manual
+    </a>
+  </nav>
+
+  <div class="sidebar-footer">
+    <div class="sidebar-team">
+      <div class="sidebar-team-label">Kelompok 4</div>
+      <div class="sidebar-team-member">
+        <span class="material-icons-round">person</span>
+        Muhamad Sauzan Rizki Asakir
+        <span class="sidebar-npm">2113231076</span>
+      </div>
+      <div class="sidebar-team-member">
+        <span class="material-icons-round">person</span>
+        Muhamad Gilang Rizqy Suryana
+        <span class="sidebar-npm">2113231092</span>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<!-- Main Area -->
+<div class="main-area">
+
+  <!-- Top Header -->
+  <header class="top-header" id="topHeader">
+    <div class="header-left">
+      <button class="hamburger" id="btnHamburger" title="Toggle sidebar">
+        <span class="material-icons-round">menu</span>
+      </button>
+      <div>
+        <h1 class="page-title" id="pageTitle">Sistem Pendukung Keputusan Metode DIA</h1>
+        <p class="page-subtitle" id="pageSubtitle">Dashboard</p>
+      </div>
+    </div>
+    <div class="header-actions">
+      <button class="header-btn btn-print" id="btnPrint" title="Cetak">
+        <span class="material-icons-round">print</span> Cetak
+      </button>
+      <button class="header-btn btn-excel" id="btnExcel" title="Export Excel">
+        <span class="material-icons-round">table_chart</span> Excel
+      </button>
+      <button class="header-btn btn-reset" id="btnReset" title="Reset Data">
+        <span class="material-icons-round">restart_alt</span> Reset
+      </button>
+    </div>
+  </header>
+
+  <!-- Page Content -->
+  <main class="content" id="contentArea">
+
+    <!-- Dashboard -->
+    <div class="page active" id="page-dashboard">
+      <div class="summary-cards" id="summaryCards"></div>
+
+      <!-- Charts -->
+      <div class="charts-row">
+        <div class="chart-card">
+          <div class="chart-card-head">
+            <h2><span class="material-icons-round">bar_chart</span> Performa Ranking</h2>
+            <p>Grafik bar berdasarkan nilai Ri</p>
+          </div>
+          <div class="chart-body">
+            <canvas id="chartBar"></canvas>
+          </div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-card-head">
+            <h2><span class="material-icons-round">pie_chart</span> Bobot Kriteria</h2>
+            <p>Distribusi bobot</p>
+          </div>
+          <div class="chart-body">
+            <canvas id="chartPie"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Data Kriteria -->
+    <div class="page" id="page-kriteria">
+      <div class="page-card">
+        <div class="page-card-head">
+          <div>
+            <h2><span class="material-icons-round">tune</span> Manajemen Kriteria</h2>
+            <p>Tambah, ubah, hapus data kriteria</p>
+          </div>
+          <button class="btn-primary" id="btnAddCriteria"><span class="material-icons-round">add</span> Tambah</button>
+        </div>
+        <div class="table-scroll">
+          <table id="kriteriaTable"></table>
+        </div>
+        <div id="kriteriaFooter" class="table-footer"></div>
+        <div id="weightBadge"></div>
+      </div>
+    </div>
+
+    <!-- Data Alternatif -->
+    <div class="page" id="page-alternatif">
+      <div class="page-card">
+        <div class="page-card-head">
+          <div>
+            <h2><span class="material-icons-round">group</span> Manajemen Alternatif</h2>
+            <p>Tambah, ubah, hapus data alternatif</p>
+          </div>
+          <button class="btn-primary" id="btnAddAlternative"><span class="material-icons-round">add</span> Tambah</button>
+        </div>
+        <div class="table-scroll">
+          <table id="alternatifTable"></table>
+        </div>
+        <div id="alternatifFooter" class="table-footer"></div>
+      </div>
+    </div>
+
+    <!-- Penilaian -->
+    <div class="page" id="page-penilaian">
+      <div class="page-card">
+        <div class="page-card-head">
+          <div>
+            <h2><span class="material-icons-round">edit_note</span> Penilaian Alternatif</h2>
+            <p>Isi nilai setiap alternatif terhadap setiap kriteria</p>
+          </div>
+          <button class="btn-primary" id="btnSavePenilaian"><span class="material-icons-round">save</span> Simpan</button>
+        </div>
+        <div id="penilaianStatus"></div>
+        <div class="table-scroll">
+          <table id="penilaianTable"></table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Perhitungan DIA -->
+    <div class="page" id="page-perhitungan">
+      <div class="page-card">
+        <div class="page-card-head">
+          <div>
+            <h2><span class="material-icons-round">calculate</span> Perhitungan Metode DIA</h2>
+            <p>Langkah-langkah perhitungan lengkap</p>
+          </div>
+          <button class="btn-primary" id="btnHitungDIA"><span class="material-icons-round">play_arrow</span> Hitung DIA</button>
+        </div>
+        <div id="perhitunganContent"></div>
+      </div>
+    </div>
+
+    <!-- Hasil Ranking -->
+    <div class="page" id="page-ranking">
+      <div id="winnerSection"></div>
+      <div class="page-card" style="margin-top:20px;">
+        <div class="page-card-head">
+          <div>
+            <h2><span class="material-icons-round">emoji_events</span> Tabel Hasil Ranking</h2>
+            <p>Peringkat alternatif berdasarkan nilai Ri</p>
+          </div>
+        </div>
+        <div class="table-scroll">
+          <table class="rank-table" id="rankTable"></table>
+        </div>
+        <div id="rankFooter" class="table-footer"></div>
+      </div>
+      <div class="charts-row" style="margin-top:20px;">
+        <div class="chart-card">
+          <div class="chart-card-head">
+            <h2><span class="material-icons-round">bar_chart</span> Bar Chart Ranking</h2>
+          </div>
+          <div class="chart-body"><canvas id="chartBarRanking"></canvas></div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-card-head">
+            <h2><span class="material-icons-round">pie_chart</span> Pie Chart Bobot</h2>
+          </div>
+          <div class="chart-body"><canvas id="chartPieRanking"></canvas></div>
+        </div>
+      </div>
+      <div class="page-card conclusion-card" id="conclusionCard" style="margin-top:20px;">
+        <div class="page-card-head">
+          <div>
+            <h2><span class="material-icons-round">auto_awesome</span> Kesimpulan Analisa</h2>
+            <p>Rangkuman otomatis berdasarkan hasil perhitungan</p>
+          </div>
+        </div>
+        <div class="conclusion-body" id="conclusionBody"></div>
+      </div>
+    </div>
+
+  </main>
+
+  <footer class="main-footer">
+    SPK DIA Dashboard &copy; 2026 — Kelompok 4 | Sistem Pendukung Keputusan Metode Distance to Ideal Alternative
+  </footer>
+
+</div>
+
+<!-- Overlay for mobile sidebar -->
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<!-- Print Footer (identity on every PDF page) -->
+<div class="footer-print">
+  Kelompok 4 — Muhamad Sauzan Rizki Asakir (2113231076) &amp; Muhamad Gilang Rizqy Suryana (2113231092)
+</div>
+
+<!-- Script -->
+<script src="js/script.js"></script>
+</body>
+</html>

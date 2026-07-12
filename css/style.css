@@ -868,6 +868,8 @@ table input:focus {
   .charts-row { grid-template-columns: 1fr; }
   .winner-section { grid-template-columns: 1fr; }
   .team-card-body { grid-template-columns: 1fr; }
+  /* show hamburger on narrower laptops/tablets */
+  .hamburger { display: block; }
 }
 
 @media (max-width: 768px) {
@@ -899,6 +901,31 @@ table input:focus {
   .content { padding: 16px; }
   .summary-cards { grid-template-columns: 1fr; }
   .team-card-body { grid-template-columns: 1fr; }
+}
+
+/* Additional responsive refinements */
+@media (max-width: 1200px) {
+  :root { --sidebar-width: 220px; }
+  .chart-body { min-height: 220px; }
+}
+
+@media (max-width: 1024px) {
+  :root { --sidebar-width: 200px; }
+  .page-card { padding: 18px; }
+  .page-card-head h2 { font-size: 16px; }
+  .header-btn span:last-child { display: none; }
+  .header-btn { padding: 8px 10px; }
+  .chart-body { min-height: 200px; }
+}
+
+@media (max-width: 420px) {
+  body { font-size: 13px; }
+  .brand-title { font-size: 16px; }
+  .brand-sub { display: none; }
+  .sidebar-footer { padding: 10px; }
+  .page-card { padding: 14px; }
+  table th, table td { padding: 8px 10px; font-size: 13px; }
+  .summary-card-value { font-size: 22px; }
 }
 
 /* Print */

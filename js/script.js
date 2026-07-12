@@ -557,13 +557,17 @@
     const container      = document.getElementById("perhitunganContent");
 
     function matrixHtml(title, matrix, rowLabels, colLabels, decimals) {
+      const decimalArray = Array.isArray(decimals)
+        ? decimals
+        : colLabels.map(() => decimals);
       let html = `<table class="matrix-table"><thead><tr><th class="rowlabel">${title}</th>`;
       colLabels.forEach((label) => (html += `<th>${escapeHtml(label)}</th>`));
       html += "</tr></thead><tbody>";
       matrix.forEach((row, rowIdx) => {
         html += `<tr><td class="rowlabel">${escapeHtml(rowLabels[rowIdx])}</td>`;
-        row.forEach((value) => {
-          html += `<td>${fmt(value, decimals)}</td>`;
+        row.forEach((value, colIdx) => {
+          const dec = decimalArray[colIdx] !== undefined ? decimalArray[colIdx] : decimalArray[0];
+          html += `<td>${fmt(value, dec)}</td>`;
         });
         html += "</tr>";
       });
@@ -613,7 +617,7 @@
           <p class="caption">D⁺<sub>i</sub> = Σⱼ |Y<sub>ij</sub> − A⁺<sub>j</sub>| &nbsp;·&nbsp; D⁻<sub>i</sub> = Σⱼ |Y<sub>ij</sub> − A⁻<sub>j</sub>|</p>
           <div class="table-scroll">${matrixHtml("Alternatif",
             alternatives.map((_a, i) => [result.distancePlus[i], result.distanceMinus[i]]),
-            alternativeIds, ["D+", "D-"], 0
+            alternativeIds, ["D+", "D-"], 5
           )}</div>
         </div>
       </div>
@@ -625,7 +629,7 @@
           <br>R<sub>i</sub> = √((D⁺ᵢ − min D⁺)² + (D⁻ᵢ − max D⁻)²)</p>
           <div class="table-scroll">${matrixHtml("Alternatif",
             alternatives.map((_a, i) => [result.distancePlus[i], result.distanceMinus[i], result.riValues[i], result.ranks[i]]),
-            alternativeIds, ["D+", "D-", "Ri", "Rank"], 0
+            alternativeIds, ["D+", "D-", "Ri", "Rank"], [6, 6, 6, 0]
           )}</div>
         </div>
       </div>

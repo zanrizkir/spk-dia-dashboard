@@ -613,7 +613,7 @@
           <p class="caption">D⁺<sub>i</sub> = Σⱼ |Y<sub>ij</sub> − A⁺<sub>j</sub>| &nbsp;·&nbsp; D⁻<sub>i</sub> = Σⱼ |Y<sub>ij</sub> − A⁻<sub>j</sub>|</p>
           <div class="table-scroll">${matrixHtml("Alternatif",
             alternatives.map((_a, i) => [result.distancePlus[i], result.distanceMinus[i]]),
-            alternativeIds, ["D+", "D-"], 6
+            alternativeIds, ["D+", "D-"], 0
           )}</div>
         </div>
       </div>

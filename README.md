@@ -5,14 +5,6 @@
 
 Aplikasi berbasis web **Sistem Pendukung Keputusan (SPK)** menggunakan metode **Distance to the Ideal Alternative (DIA)**. Aplikasi ini dirancang menyerupai *dashboard admin* profesional tingkat *enterprise* dengan antarmuka *Single Page Application* (SPA).
 
-Proyek ini dikembangkan sebagai pemenuhan tugas mata kuliah oleh **Kelompok 4**.
-
-## 👨‍💻 Tim Pengembang (Kelompok 4)
-* **Muhamad Sauzan Rizki Asakir** (2113231076)
-* **Muhamad Gilang Rizqy Suryana** (2113231092)
-
----
-
 ## ✨ Fitur Unggulan
 
 * 🧮 **Akurasi Matematis Tingkat Tinggi:** Melakukan koreksi dan penyempurnaan perhitungan dari jurnal referensi, khususnya pada akurasi Jarak Euclidean (Nilai Preferensi $R_i$) menggunakan referensi *Positive Ideal Alternative* (PIA) yang mutlak.

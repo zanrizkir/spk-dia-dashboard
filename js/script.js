@@ -636,9 +636,12 @@
     `;
   }
 
-  document.getElementById("btnHitungDIA").addEventListener("click", () => {
-    renderPerhitunganPage();
-  });
+  const btnHitungDIA = document.getElementById("btnHitungDIA");
+  if (btnHitungDIA) {
+    btnHitungDIA.addEventListener("click", () => {
+      renderPerhitunganPage();
+    });
+  }
 
   // Hasil Ranking
 

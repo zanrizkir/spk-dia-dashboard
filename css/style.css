@@ -968,4 +968,29 @@ table input:focus {
         width: 100% !important;
         text-align: center !important;
     }
+
+
+/* ─── Table Layout Fixes ───────────────────────────────────────── */
+
+/* Kolom pertama tidak boleh melipat teks dan mengambil lebar minimum */
+#penilaianTable td:first-child,
+#penilaianTable th:first-child,
+.matrix-table td:first-child,
+.matrix-table th:first-child {
+  white-space: nowrap;
+  width: 1%;
+}
+
+/* Scroll horizontal aman untuk semua tabel data */
+.table-scroll {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Wrapper tabel penilaian juga harus bisa di-scroll horizontal */
+#penilaianTable {
+  display: block;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  width: 100%;
 }

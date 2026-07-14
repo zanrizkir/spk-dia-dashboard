@@ -12,18 +12,7 @@
         { name: "Surat Penunjang", weight: 0.20, type: "benefit" },
         { name: "Data Prestasi", weight: 0.10, type: "benefit" },
       ],
-      alternatives: [
-        { id: "A1",  values: [4, 5, 5, 1, 5] },
-        { id: "A2",  values: [5, 4, 3, 3, 5] },
-        { id: "A3",  values: [5, 5, 3, 3, 5] },
-        { id: "A4",  values: [3, 5, 3, 3, 4] },
-        { id: "A5",  values: [4, 5, 5, 5, 4] },
-        { id: "A6",  values: [2, 4, 1, 3, 4] },
-        { id: "A7",  values: [2, 4, 3, 3, 4] },
-        { id: "A8",  values: [3, 4, 5, 3, 5] },
-        { id: "A9",  values: [5, 3, 3, 3, 5] },
-        { id: "A10", values: [5, 4, 5, 1, 5] },
-      ],
+      alternatives: [],
     };
   }
 
@@ -184,14 +173,8 @@
   let pieChartInstance = null;
 
   function renderDashboard() {
-    const result = compute();
     const alternatives = state.alternatives;
     const criteria     = state.criteria;
-
-    const sortedOrder = alternatives.map((_a, i) => i).sort((x, y) => result.riValues[x] - result.riValues[y]);
-    const winnerIndex = sortedOrder[0];
-    const winnerName  = alternatives[winnerIndex]?.id ?? "—";
-    const winnerRi    = fmt(result.riValues[winnerIndex], 6);
 
     document.getElementById("summaryCards").innerHTML = `
       <div class="summary-card">
@@ -218,11 +201,28 @@
         </div>
         <div>
           <div class="summary-card-label">Alternatif Terbaik</div>
-          <div class="summary-card-value">${escapeHtml(winnerName)}</div>
-          <div class="summary-card-sub">(Ri: ${winnerRi})</div>
+          <div class="summary-card-value">${alternatives.length === 0 ? "—" : ""}</div>
+          <div class="summary-card-sub">${alternatives.length === 0 ? "Belum ada data" : ""}</div>
         </div>
       </div>
     `;
+
+    if (alternatives.length === 0) {
+      // Hancurkan chart lama jika ada, tapi tidak render baru
+      if (barChartInstance) { barChartInstance.destroy(); barChartInstance = null; }
+      renderPieChart("chartPie", criteria);
+      return;
+    }
+
+    const result = compute();
+    const sortedOrder = alternatives.map((_a, i) => i).sort((x, y) => result.riValues[x] - result.riValues[y]);
+    const winnerIndex = sortedOrder[0];
+    const winnerName  = alternatives[winnerIndex]?.id ?? "—";
+    const winnerRi    = fmt(result.riValues[winnerIndex], 6);
+
+    // Perbarui summary card alternatif terbaik
+    document.getElementById("summaryCards").querySelector(".summary-card:last-child .summary-card-value").textContent = escapeHtml(winnerName);
+    document.getElementById("summaryCards").querySelector(".summary-card:last-child .summary-card-sub").textContent = `(Ri: ${winnerRi})`;
 
     renderBarChart("chartBar", result, alternatives, sortedOrder);
     renderPieChart("chartPie", criteria);
@@ -437,7 +437,7 @@
       weight: 0,
       type: "benefit",
     });
-    state.alternatives.forEach((alt) => alt.values.push(3));
+    state.alternatives.forEach((alt) => alt.values.push(""));
     saveState();
     renderKriteriaPage();
   });
@@ -498,7 +498,7 @@
     const numCriteria = state.criteria.length;
     state.alternatives.push({
       id: "A" + (state.alternatives.length + 1),
-      values: new Array(numCriteria).fill(3),
+      values: new Array(numCriteria).fill(""),
     });
     saveState();
     renderAlternatifPage();
@@ -521,13 +521,10 @@
     html += "</tr></thead><tbody>";
 
     alternatives.forEach((alt, i) => {
-      html += `<tr><td>
-        <span class="code-badge">A${i + 1}</span>
-        <span style="margin-left:8px;">${escapeHtml(alt.id)}</span>
-      </td>`;
+      html += `<tr><td style="white-space:nowrap;"><div style="display:flex;align-items:center;gap:8px;"><span class="code-badge">A${i + 1}</span><span>${escapeHtml(alt.id)}</span></div></td>`;
       criteria.forEach((_c, j) => {
         html += `<td class="center">
-          <input type="number" step="any" data-role="score" data-i="${i}" data-j="${j}" value="${alt.values[j]}">
+          <input type="number" min="1" max="5" step="any" data-role="score" data-i="${i}" data-j="${j}" value="${alt.values[j] === "" ? "" : alt.values[j]}" placeholder="-">
         </td>`;
       });
       html += "</tr>";
@@ -542,10 +539,38 @@
       </div>`;
 
     table.querySelectorAll('[data-role="score"]').forEach((el) => {
+      // 1. Cegah karakter matematika yang tidak diinginkan (e, -, +)
+      el.addEventListener("keydown", (event) => {
+        if (["e", "E", "-", "+"].includes(event.key)) {
+          event.preventDefault();
+        }
+      });
+
+      // 2. Kunci paksa angka di rentang 1 sampai 5
       el.addEventListener("input", (event) => {
         const i = +event.target.dataset.i;
         const j = +event.target.dataset.j;
-        state.alternatives[i].values[j] = parseFloat(event.target.value) || 0;
+        let val = event.target.value;
+
+        if (val !== "") {
+          let num = parseFloat(val);
+
+          // Jika diketik lebih dari 5, paksa kembali ke 5
+          if (num > 5) {
+            num = 5;
+            event.target.value = 5;
+          }
+          // Jika diketik kurang dari 1 (misal 0), paksa naik ke 1
+          else if (num < 1) {
+            num = 1;
+            event.target.value = 1;
+          }
+
+          state.alternatives[i].values[j] = num;
+        } else {
+          // Jika form dihapus sampai kosong (backspace)
+          state.alternatives[i].values[j] = "";
+        }
         saveState();
       });
     });
@@ -570,11 +595,20 @@
   // Perhitungan DIA
 
   function renderPerhitunganPage() {
-    const result       = compute();
     const criteria     = state.criteria;
     const alternatives = state.alternatives;
+    const container    = document.getElementById("perhitunganContent");
+
+    if (alternatives.length === 0) {
+      container.innerHTML = `<div style="text-align:center;padding:40px 20px;color:#64748b;font-size:14px;">
+        <span class="material-icons-round" style="font-size:40px;display:block;margin-bottom:12px;opacity:0.4;">inbox</span>
+        Belum ada data alternatif. Silakan tambahkan data di menu <strong>Manajemen Alternatif</strong>.
+      </div>`;
+      return;
+    }
+
+    const result         = compute();
     const alternativeIds = alternatives.map((a) => a.id);
-    const container      = document.getElementById("perhitunganContent");
 
     function matrixHtml(title, matrix, rowLabels, colLabels, decimals) {
       const decimalArray = Array.isArray(decimals)
@@ -669,9 +703,28 @@
   let pieChartRankingInstance = null;
 
   function renderRankingPage() {
-    const result       = compute();
     const alternatives = state.alternatives;
     const criteria     = state.criteria;
+
+    if (alternatives.length === 0) {
+      const emptyMsg = `<div style="text-align:center;padding:40px 20px;color:#64748b;font-size:14px;">
+        <span class="material-icons-round" style="font-size:40px;display:block;margin-bottom:12px;opacity:0.4;">leaderboard</span>
+        Belum ada data alternatif. Silakan tambahkan data di menu <strong>Manajemen Alternatif</strong>.
+      </div>`;
+      const winnerSection = document.getElementById("winnerSection");
+      if (winnerSection) winnerSection.innerHTML = emptyMsg;
+      const rankTable = document.getElementById("rankTable");
+      if (rankTable) rankTable.innerHTML = "";
+      const rankFooter = document.getElementById("rankFooter");
+      if (rankFooter) rankFooter.innerHTML = "Total alternatif: 0";
+      const conclusionBody = document.getElementById("conclusionBody");
+      if (conclusionBody) conclusionBody.innerHTML = "";
+      if (barChartRankingInstance) { barChartRankingInstance.destroy(); barChartRankingInstance = null; }
+      renderPieChart("chartPieRanking", criteria);
+      return;
+    }
+
+    const result       = compute();
     const sortedOrder  = alternatives.map((_a, i) => i).sort((x, y) => result.riValues[x] - result.riValues[y]);
     const winnerIndex  = sortedOrder[0];
     const winnerName   = alternatives[winnerIndex]?.id ?? "—";

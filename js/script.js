@@ -6,11 +6,11 @@
   function createExampleData() {
     return {
       criteria: [
-        { name: "Penghasilan Orang tua", weight: 0.25 },
-        { name: "Tes Penerimaan Mahasiswa Baru", weight: 0.25 },
-        { name: "Hasil Wawancara", weight: 0.20 },
-        { name: "Surat Penunjang", weight: 0.20 },
-        { name: "Data Prestasi", weight: 0.10 },
+        { name: "Penghasilan Orang tua", weight: 0.25, type: "cost" },
+        { name: "Tes Penerimaan Mahasiswa Baru", weight: 0.25, type: "benefit" },
+        { name: "Hasil Wawancara", weight: 0.20, type: "benefit" },
+        { name: "Surat Penunjang", weight: 0.20, type: "benefit" },
+        { name: "Data Prestasi", weight: 0.10, type: "benefit" },
       ],
       alternatives: [
         { id: "A1",  values: [4, 5, 5, 1, 5] },
@@ -71,8 +71,13 @@
     const idealNegative = [];
     for (let j = 0; j < numCriteria; j++) {
       const column = weightedMatrix.map((row) => row[j]);
-      idealPositive.push(Math.max(...column));
-      idealNegative.push(Math.min(...column));
+      if (criteria[j].type === "cost") {
+        idealPositive.push(Math.min(...column)); // Cost: nilai terkecil adalah ideal positif
+        idealNegative.push(Math.max(...column)); // Cost: nilai terbesar adalah ideal negatif
+      } else {
+        idealPositive.push(Math.max(...column)); // Benefit: nilai terbesar adalah ideal positif
+        idealNegative.push(Math.min(...column)); // Benefit: nilai terkecil adalah ideal negatif
+      }
     }
 
     const distancePlus = weightedMatrix.map((row) =>
@@ -354,15 +359,23 @@
     let html = `<thead><tr>
       <th class="center" style="width:80px;">Kode</th>
       <th>Nama</th>
+      <th class="center" style="width:100px;">Tipe</th>
       <th class="center" style="width:120px;">Bobot</th>
       <th class="center" style="width:100px;">Aksi</th>
     </tr></thead><tbody>`;
 
     criteria.forEach((criterion, j) => {
+      const critType = criterion.type || "benefit";
       html += `<tr>
         <td class="center"><span class="code-badge">C${j + 1}</span></td>
         <td>
           <input type="text" data-role="crit-name" data-j="${j}" value="${escapeHtml(criterion.name)}" style="text-align:left; width:100%;">
+        </td>
+        <td class="center">
+          <select data-role="crit-type" data-j="${j}" style="width:90px;padding:4px 6px;border-radius:6px;border:1px solid var(--border,#e2e8f0);background:var(--surface,#fff);font-size:13px;cursor:pointer;">
+            <option value="benefit"${critType === "benefit" ? " selected" : ""}>Benefit</option>
+            <option value="cost"${critType === "cost" ? " selected" : ""}>Cost</option>
+          </select>
         </td>
         <td class="center">
           <input type="number" step="any" min="0" data-role="crit-weight" data-j="${j}" value="${criterion.weight}" style="width:80px;">
@@ -391,6 +404,12 @@
         saveState();
       });
     });
+    table.querySelectorAll('[data-role="crit-type"]').forEach((el) => {
+      el.addEventListener("change", (event) => {
+        state.criteria[+event.target.dataset.j].type = event.target.value;
+        saveState();
+      });
+    });
     table.querySelectorAll('[data-role="crit-weight"]').forEach((el) => {
       el.addEventListener("input", (event) => {
         state.criteria[+event.target.dataset.j].weight = parseFloat(event.target.value) || 0;
@@ -416,6 +435,7 @@
     state.criteria.push({
       name: "Kriteria " + (state.criteria.length + 1),
       weight: 0,
+      type: "benefit",
     });
     state.alternatives.forEach((alt) => alt.values.push(3));
     saveState();
@@ -575,7 +595,7 @@
       return html;
     }
 
-    const colHeaders = criteria.map((c, j) => `C${j + 1}`);
+    const colHeaders = criteria.map((c, j) => `C${j + 1} (${c.type === "cost" ? "Cost" : "Benefit"})`);
     const rawMatrix = alternatives.map((a) => a.values.map((v) => v));
 
     container.innerHTML = `
